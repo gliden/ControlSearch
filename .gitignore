@@ -115,3 +115,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+ControlSearch.dproj
+ControlSearch.otares
+ControlSearch.res
+ControlSearch_Icon.ico

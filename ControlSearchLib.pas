@@ -39,15 +39,16 @@ type
     destructor Destroy;override;
 
     property Font: TFont read FFont;
-    property Color: TColor read FColor;
+    property Color: TColor read FColor write FColor;
   end;
 
   TControlSearch = class(TObject)
   private
     FInternalControlList: TObjectList<TInternalControl>;
     FPageControl: TPageControl;
-    FMindedControls: TList<TWinControlClass>;
+    FMindedControls: TList<TControlClass>;
     FFoundControlStyle: TFoundControlStyle;
+    FPageVisible: TDictionary<TTabSheet,Boolean>;
     procedure InitControl(control: TWinControl);
     function getInternalControlByControl(control:TControl): TInternalControl;
   public
@@ -59,13 +60,13 @@ type
     procedure AddTag(control: TControl; tag: String);
 
     property FoundControlStyle: TFoundControlStyle read FFoundControlStyle;
-    property MindedControls: TList<TWinControlClass> read FMindedControls;
+    property MindedControls: TList<TControlClass> read FMindedControls;
   end;
 
 implementation
 
 uses
-  Vcl.StdCtrls, System.SysUtils;
+  Vcl.StdCtrls, System.SysUtils, Vcl.ExtCtrls;
 
 type
   TControlHack = class(TControl)
@@ -99,6 +100,13 @@ begin
   FControl.FreeNotification(Self);
 
   fTags.Add(TControlHack(control).Caption);
+
+  if control is TRadioGroup then
+  begin
+    fTags.AddStrings(TRadioGroup(control).Items);
+  end;
+
+
   FTab := getParentTab;
   FControlColor := TControlHack(control).Color;
   FControlFont := TFont.Create;
@@ -164,12 +172,17 @@ end;
 constructor TControlSearch.Create;
 begin
   FInternalControlList := TObjectList<TInternalControl>.Create;
-  FMindedControls := TList<TWinControlClass>.Create;
+  FMindedControls := TList<TControlClass>.Create;
   FMindedControls.Add(TEdit);
   FMindedControls.Add(TCheckBox);
   FMindedControls.Add(TComboBox);
+  FMindedControls.Add(TRadioGroup);
+  FMindedControls.Add(TRadioButton);
+  FMindedControls.Add(TGroupBox);
+  FMindedControls.Add(TLabel);
 
   FFoundControlStyle := TFoundControlStyle.Create;
+  FPageVisible := TDictionary<TTabSheet,Boolean>.Create;
 end;
 
 destructor TControlSearch.Destroy;
@@ -177,6 +190,7 @@ begin
   FInternalControlList.Free;
   FMindedControls.Free;
   FFoundControlStyle.Free;
+  FPageVisible.Free;
   inherited;
 end;
 
@@ -204,10 +218,12 @@ begin
   FPageControl := PageControl;
   FInternalControlList.Clear;
 
+  FPageVisible.Clear;
   for i := 0 to FPageControl.PageCount-1 do
   begin
     page := FPageControl.Pages[i];
-    InitControl(page);
+    FPageVisible.AddOrSetValue(page, page.TabVisible);
+    if page.TabVisible then InitControl(page);
   end;
 end;
 
@@ -235,14 +251,22 @@ var
   i: Integer;
   page: TTabSheet;
   internalControl: TInternalControl;
+  tmpVisiblePage: TList<TTabSheet>;
+  IsVisible: Boolean;
 begin
-  for i := 0 to FPageControl.PageCount-1 do
+  if searchText.IsEmpty then
   begin
-    page := FPageControl.Pages[i];
-    page.Visible := searchText.IsEmpty;
-    page.TabVisible := searchText.IsEmpty;
-  end;
+    for i := 0 to FPageControl.PageCount-1 do
+    begin
+      page := FPageControl.Pages[i];
 
+      FPageVisible.TryGetValue(page, IsVisible);
+
+      page.Visible := IsVisible;
+      page.TabVisible := IsVisible;
+    end;
+  end;
+  tmpVisiblePage := TList<TTabSheet>.Create;
   for internalControl in FInternalControlList do
   begin
     internalControl.ResetControlStyle;
@@ -251,8 +275,23 @@ begin
       internalControl.Tab.Visible := true;
       internalControl.Tab.TabVisible := true;
       internalControl.SetControlStyle(FFoundControlStyle);
+      if not tmpVisiblePage.Contains(internalControl.Tab) then tmpVisiblePage.Add(internalControl.Tab)
     end;
   end;
+
+  if not searchText.IsEmpty then
+  begin
+    for i := 0 to FPageControl.PageCount-1 do
+    begin
+      page := FPageControl.Pages[i];
+      if not tmpVisiblePage.Contains(page) then
+      begin
+        page.Visible := false;
+        page.TabVisible := false;
+      end;
+    end;
+  end;
+  tmpVisiblePage.Free;
 end;
 
 { TFoundControlStyle }

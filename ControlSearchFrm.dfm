@@ -48,19 +48,43 @@ object ControlSearchDlg: TControlSearchDlg
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
+      ExplicitLeft = 7
       object CheckBox2: TCheckBox
-        Left = 3
-        Top = 16
+        Left = 475
+        Top = 80
         Width = 97
         Height = 17
         Caption = 'CheckBox2'
         TabOrder = 0
       end
+      object GroupBox2: TGroupBox
+        Left = 0
+        Top = 3
+        Width = 286
+        Height = 177
+        Caption = 'GroupBox2'
+        TabOrder = 1
+        object Label1: TLabel
+          Left = 16
+          Top = 24
+          Width = 60
+          Height = 13
+          Caption = 'Bezeichnung'
+          Transparent = True
+        end
+        object Edit3: TEdit
+          Left = 128
+          Top = 21
+          Width = 138
+          Height = 21
+          TabOrder = 0
+          Text = 'Textfeld'
+        end
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'TabSheet2'
       ImageIndex = 1
-      ExplicitLeft = 7
       object CheckBox1: TCheckBox
         Left = 3
         Top = 16
@@ -100,6 +124,28 @@ object ControlSearchDlg: TControlSearchDlg
           TabOrder = 1
           Text = 'ComboBox1'
         end
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'TabSheet3'
+      ImageIndex = 2
+      object Label2: TLabel
+        Left = 232
+        Top = 168
+        Width = 19
+        Height = 13
+        Caption = 'Hier'
+      end
+      object RadioGroup1: TRadioGroup
+        Left = 11
+        Top = 16
+        Width = 185
+        Height = 105
+        Caption = 'RadioGroup1'
+        Items.Strings = (
+          'Item 1'
+          'Item 2')
+        TabOrder = 0
       end
     end
   end

@@ -21,6 +21,12 @@ type
     GroupBox1: TGroupBox;
     CheckBox3: TCheckBox;
     ComboBox1: TComboBox;
+    GroupBox2: TGroupBox;
+    Edit3: TEdit;
+    Label1: TLabel;
+    TabSheet3: TTabSheet;
+    Label2: TLabel;
+    RadioGroup1: TRadioGroup;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
@@ -44,9 +50,12 @@ end;
 
 procedure TControlSearchDlg.FormCreate(Sender: TObject);
 begin
+  TabSheet2.TabVisible := false;
   controlSearch := TControlSearch.Create;
   controlSearch.Init(PageControl1);
   controlSearch.FoundControlStyle.Font.Style := [fsBold];
+  controlSearch.FoundControlStyle.Font.Color := clGreen;
+  controlSearch.FoundControlStyle.Color := clRed;
 
   controlSearch.AddTag(Edit2, 'Name');
   controlSearch.AddTag(CheckBox2, 'Benachrichtigungen');
